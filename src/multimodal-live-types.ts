@@ -19,6 +19,7 @@ import type {
   FunctionCall,
   GenerationConfig,
   GenerativeContentBlob,
+  // SafetySetting,
   Part,
   Tool,
 } from "@google/generative-ai";
@@ -36,6 +37,7 @@ import type {
  */
 export type LiveConfig = {
   model: string;
+  // safetySettings?: SafetySetting[];
   systemInstruction?: { parts: Part[] };
   generationConfig?: Partial<LiveGenerationConfig>;
   tools?: Array<Tool | { googleSearch: {} } | { codeExecution: {} }>;

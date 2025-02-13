@@ -29,6 +29,7 @@ export type ControlTrayProps = {
   videoRef: RefObject<HTMLVideoElement>;
   children?: ReactNode;
   supportsVideo: boolean;
+  supportsAudio: boolean;
   onVideoStreamChange?: (stream: MediaStream | null) => void;
 };
 
@@ -61,6 +62,7 @@ function ControlTray({
   children,
   onVideoStreamChange = () => {},
   supportsVideo,
+  supportsAudio,
 }: ControlTrayProps) {
   const videoStreams = [useWebcam(), useScreenCapture()];
   const [activeVideoStream, setActiveVideoStream] =
@@ -72,7 +74,7 @@ function ControlTray({
   const renderCanvasRef = useRef<HTMLCanvasElement>(null);
   const connectButtonRef = useRef<HTMLButtonElement>(null);
 
-  const { client, connected, connect, disconnect, volume } =
+  const { client, connected, connect, disconnect, volume, config } =
     useLiveAPIContext();
 
   useEffect(() => {
@@ -96,7 +98,7 @@ function ControlTray({
         },
       ]);
     };
-    if (connected && !muted && audioRecorder) {
+    if (supportsAudio && connected && !muted && audioRecorder) {
       audioRecorder.on("data", onData).on("volume", setInVolume).start();
     } else {
       audioRecorder.stop();
@@ -104,7 +106,7 @@ function ControlTray({
     return () => {
       audioRecorder.off("data", onData).off("volume", setInVolume);
     };
-  }, [connected, client, muted, audioRecorder]);
+  }, [connected, client, muted, audioRecorder, supportsAudio]);
 
   useEffect(() => {
     if (videoRef.current) {
@@ -156,11 +158,13 @@ function ControlTray({
     videoStreams.filter((msr) => msr !== next).forEach((msr) => msr.stop());
   };
 
+  const hasVoice = config.generationConfig?.responseModalities === 'audio';
+
   return (
     <section className="control-tray">
       <canvas style={{ display: "none" }} ref={renderCanvasRef} />
       <nav className={cn("actions-nav", { disabled: !connected })}>
-        <button
+        {supportsAudio && <button
           className={cn("action-button mic-button")}
           onClick={() => setMuted(!muted)}
         >
@@ -169,11 +173,11 @@ function ControlTray({
           ) : (
             <span className="material-symbols-outlined filled">mic_off</span>
           )}
-        </button>
+        </button>}
 
-        <div className="action-button no-action outlined">
+        {hasVoice && <div className="action-button no-action outlined">
           <AudioPulse volume={volume} active={connected} hover={false} />
-        </div>
+        </div>}
 
         {supportsVideo && (
           <>

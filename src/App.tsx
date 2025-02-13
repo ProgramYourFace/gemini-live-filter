@@ -18,9 +18,9 @@ import { useRef, useState } from "react";
 import "./App.scss";
 import { LiveAPIProvider } from "./contexts/LiveAPIContext";
 import SidePanel from "./components/side-panel/SidePanel";
-import { Altair } from "./components/altair/Altair";
 import ControlTray from "./components/control-tray/ControlTray";
 import cn from "classnames";
+import { LiveFilter } from "./components/live-filter/LiveFilter";
 
 const API_KEY = process.env.REACT_APP_GEMINI_API_KEY as string;
 if (typeof API_KEY !== "string") {
@@ -45,7 +45,7 @@ function App() {
           <main>
             <div className="main-app-area">
               {/* APP goes here */}
-              <Altair />
+              <LiveFilter />
               <video
                 className={cn("stream", {
                   hidden: !videoRef.current || !videoStream,
@@ -59,6 +59,7 @@ function App() {
             <ControlTray
               videoRef={videoRef}
               supportsVideo={true}
+              supportsAudio={false}
               onVideoStreamChange={setVideoStream}
             >
               {/* put your own buttons here */}
